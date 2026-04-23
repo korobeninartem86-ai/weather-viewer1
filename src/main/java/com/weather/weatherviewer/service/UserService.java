@@ -4,9 +4,10 @@ import com.weather.weatherviewer.dao.UserDao;
 import com.weather.weatherviewer.dao.UserSessionDao;
 import com.weather.weatherviewer.entity.UserSession;
 import com.weather.weatherviewer.entity.Users;
+import com.weather.weatherviewer.exception.LoginException;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
-
+import com.weather.weatherviewer.exception.RegisterException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,28 +29,20 @@ public class UserService {
     }
 
     public Users registerUser(String username , String password){
-        if (!validateUsernameAndPassword(username,password)){
-            throw new RuntimeException(" Username or password is empty");
-        }
         Users user = userDao.findByUsername(username);
         if (user != null){
-            throw new RuntimeException("User: "+username+" already exists");
+            throw new RegisterException("username","USERNAME_ALREADY_EXISTS","Account with this username already exists");
         }
         user = new Users(username,password);
         userDao.save(user);
         return user;
     }
     public UserSession loginUser (String username , String password){
-        if (!validateUsernameAndPassword(username,password)){
-            throw new RuntimeException(" Username or password is empty");
-        }
         Users user = userDao.findByUsername(username);
-        if (user==null){
-            throw new RuntimeException("User: "+username+" not exists");
+        if (user==null ||!user.getPassword().equals(password)){
+            throw new LoginException("INVALID_CREDENTI_ALS","Incorrect username or password");
         }
-        if (!user.getPassword().equals(password)){
-            throw new RuntimeException("incorrect password");
-        }         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
         UserSession userSession = new UserSession(user.getId(),now.plusDays(2));
         userSessionDao.save(userSession);
         return userSession;
