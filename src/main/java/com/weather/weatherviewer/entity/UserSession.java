@@ -22,12 +22,13 @@ public class UserSession {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
-    public UserSession( long userId, LocalDateTime expiresAt) {
+    public UserSession(long userId, LocalDateTime expiresAt) {
         this.sessionId = UUID.randomUUID();
         this.userId = userId;
         this.expiresAt = expiresAt;
     }
-    public UserSession(){
+
+    public UserSession() {
 
     }
 

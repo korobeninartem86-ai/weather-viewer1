@@ -34,32 +34,33 @@ import java.util.UUID;
 
 @Controller
 public class AuthController {
-    private final UserService userService ;
+    private final UserService userService;
     private final LocationService locationService;
     private final WeatherService weatherService;
     private final HomeService homeService;
 
-    public AuthController(UserService userService, LocationService locationService, WeatherService weatherService,HomeService homeService) {
+    public AuthController(UserService userService, LocationService locationService, WeatherService weatherService, HomeService homeService) {
         this.userService = userService;
         this.locationService = locationService;
         this.weatherService = weatherService;
         this.homeService = homeService;
     }
+
     @GetMapping("/register")
-    public String registerUserPage(){
-    return "register";
+    public String registerUserPage() {
+        return "register";
     }
 
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") UserRegisterDto dto , BindingResult bindingResult, Model model){
-    if (!bindingResult.getAllErrors().isEmpty()) {
-        return "register";
-    }
+    public String registerUser(@ModelAttribute("user") UserRegisterDto dto, BindingResult bindingResult, Model model) {
+        if (!bindingResult.getAllErrors().isEmpty()) {
+            return "register";
+        }
         try {
-            userService.registerUser(dto.getUsername(),dto.getPassword());
+            userService.registerUser(dto.getUsername(), dto.getPassword());
         } catch (RegisterException e) {
-            bindingResult.rejectValue(e.getField(),e.getCodeError(),e.getMessage());
+            bindingResult.rejectValue(e.getField(), e.getCodeError(), e.getMessage());
             return "register";
         }
         return "redirect:/login";
@@ -67,60 +68,62 @@ public class AuthController {
 
 
     @PostMapping("/locations/delete")
-    public String locationDelete (@RequestParam("locationId")int id,HttpServletRequest request){
-                Users user = getCurrentUser(request);
-                if (user==null){
-                    return "redirect:/login";
-                }
-                locationService.deleteLocation(id,user.getId());
-                return "redirect:/home";
+    public String locationDelete(@RequestParam("locationId") int id, HttpServletRequest request) {
+        Users user = getCurrentUser(request);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        locationService.deleteLocation(id, user.getId());
+        return "redirect:/home";
     }
 
     @GetMapping("/login")
-    public String showLoginPage(){
-    return "login";
-}
-@PostMapping("/login")
-    public String login(@ModelAttribute("user")UserLoginDto userLoginDto,BindingResult bindingResult, HttpServletResponse response ) {
-    if (bindingResult.hasErrors()){
-        return "login" ;
-    }
-    UUID sessionId;
-    try {
-        sessionId = userService.loginUser(userLoginDto.getUsername(), userLoginDto.getPassword()).getSessionId();
-    } catch (LoginException e) {
-        bindingResult.reject(e.getCodeError(),e.getMessage());
+    public String showLoginPage() {
         return "login";
     }
-    Cookie cookie = new Cookie("sessionId", sessionId.toString());
-    cookie.setPath("/");
-    response.addCookie(cookie);
-    return "redirect:/home";
-}
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, HttpServletResponse response) {
+        if (bindingResult.hasErrors()) {
+            return "login";
+        }
+        UUID sessionId;
+        try {
+            sessionId = userService.loginUser(userLoginDto.getUsername(), userLoginDto.getPassword()).getSessionId();
+        } catch (LoginException e) {
+            bindingResult.reject(e.getCodeError(), e.getMessage());
+            return "login";
+        }
+        Cookie cookie = new Cookie("sessionId", sessionId.toString());
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return "redirect:/home";
+    }
+
     @GetMapping("/home")
-    public String homePage(HttpServletRequest request, Model model){
-            Users user = getCurrentUser(request);
-                if (user==null){
-                    return "redirect:/login";
-                }
-                List<LocationWeatherCard>cards = homeService.findAllCardsByUserId(user.getId());
-                model.addAttribute("user",user);
-                model.addAttribute("cards",cards);
-                return "home";
-            }
+    public String homePage(HttpServletRequest request, Model model) {
+        Users user = getCurrentUser(request);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        List<LocationWeatherCard> cards = homeService.findAllCardsByUserId(user.getId());
+        model.addAttribute("user", user);
+        model.addAttribute("cards", cards);
+        return "home";
+    }
 
 
     @PostMapping("/logout")
-    public String logout (HttpServletRequest request , HttpServletResponse response){
-        Cookie[]cookies = request.getCookies();
-        if (cookies == null){
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
             return "redirect:/login";
         }
-        for (Cookie cookie : cookies){
-            if ("sessionId".equals(cookie.getName())){
+        for (Cookie cookie : cookies) {
+            if ("sessionId".equals(cookie.getName())) {
                 UUID sessionId = UUID.fromString(cookie.getValue());
                 userService.logout(sessionId);
-                Cookie deleteCoolie = new Cookie("sessionId",null);
+                Cookie deleteCoolie = new Cookie("sessionId", null);
                 deleteCoolie.setMaxAge(0);
                 deleteCoolie.setPath("/");
                 response.addCookie(deleteCoolie);
@@ -129,6 +132,7 @@ public class AuthController {
         }
         return "redirect:/login";
     }
+
     private Users getCurrentUser(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -142,5 +146,5 @@ public class AuthController {
         }
         return null;
     }
-    }
+}
 

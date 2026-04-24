@@ -4,18 +4,18 @@ import java.math.BigDecimal;
 
 public class WeatherResult {
     private BigDecimal temperature;
-    private BigDecimal feelsLike ;
+    private BigDecimal feelsLike;
     private Integer humidity;
-    private String description ;
+    private String description;
     private String iconPatch;
 
 
-    public WeatherResult(BigDecimal temperature, BigDecimal feelsLike, Integer humidity, String description,String iconPatch) {
+    public WeatherResult(BigDecimal temperature, BigDecimal feelsLike, Integer humidity, String description, String iconPatch) {
         this.temperature = temperature;
         this.feelsLike = feelsLike;
         this.humidity = humidity;
         this.description = description;
-        this.iconPatch=iconPatch;
+        this.iconPatch = iconPatch;
     }
 
     public BigDecimal getTemperature() {

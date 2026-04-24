@@ -8,15 +8,15 @@ public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id ;
+    private long id;
 
-    @Column(name = "username",nullable = false,unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    public Users(){
+    public Users() {
 
     }
 

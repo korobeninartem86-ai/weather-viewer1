@@ -4,7 +4,7 @@ import com.weather.weatherviewer.entity.Location;
 
 public class LocationWeatherCard {
     private Location location;
-    private WeatherResult weatherResult ;
+    private WeatherResult weatherResult;
 
     public LocationWeatherCard(Location location, WeatherResult weatherResult) {
         this.location = location;

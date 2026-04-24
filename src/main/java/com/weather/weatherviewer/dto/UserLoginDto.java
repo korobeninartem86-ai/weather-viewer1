@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class UserLoginDto {
     @NotBlank(message = "Username cannot be empty")
-    private  String username;
+    private String username;
 
     @NotBlank(message = "Password cannot be empty")
     private String password;

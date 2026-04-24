@@ -30,27 +30,28 @@ public class LocationController {
     }
 
     @PostMapping("/locations")
-    public String addLocation(@RequestParam String name , @RequestParam BigDecimal lat ,@RequestParam BigDecimal lon, HttpServletRequest request){
-        Cookie[]cookies = request.getCookies();
-        if (cookies==null){
+    public String addLocation(@RequestParam String name, @RequestParam BigDecimal lat, @RequestParam BigDecimal lon, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
             return "redirect:/login";
         }
-        for (Cookie cookie : cookies){
-            if (cookie.getName().equals("sessionId")){
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("sessionId")) {
                 UUID sessionId = UUID.fromString(cookie.getValue());
                 Users user = userService.findUserBySessionId(sessionId);
-                locationService.addLocation(name ,user.getId(),lat,lon);
+                locationService.addLocation(name, user.getId(), lat, lon);
                 break;
             }
         }
         return "redirect:/home";
     }
-@GetMapping("locations/search")
-    public String locationsSearch(@RequestParam String name , Model model){
-        List<LocationSearchResult> resultList = weatherService.searchLocations(name);
-    model.addAttribute("results",resultList);
-    return "search-result";
 
-}
+    @GetMapping("locations/search")
+    public String locationsSearch(@RequestParam String name, Model model) {
+        List<LocationSearchResult> resultList = weatherService.searchLocations(name);
+        model.addAttribute("results", resultList);
+        return "search-result";
+
+    }
 
 }

@@ -17,72 +17,48 @@ public class LocationDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public void save(Location location){
-        Session session = null;
+    public void save(Location location) {
         Transaction transaction = null;
-
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.persist(location);
             transaction.commit();
         } catch (HibernateException e) {
-            if (transaction != null){
+            if (transaction != null) {
                 transaction.rollback();
             }
-        } finally {
-            if (session != null) {
-                session.close();
-            }
+            throw new RuntimeException(e);
         }
     }
-    public void deleteByIdAndUserId(int locationId , long userId ){
 
-        Session session = null;
+    public void deleteByIdAndUserId(int locationId, long userId) {
         Transaction transaction = null;
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-                session.createQuery("""
-                        DELETE FROM Location 
-                        WHERE id=:locationId 
-                        AND userId =:userId""")
-                        .setParameter("locationId",locationId)
-                        .setParameter("userId",userId)
-                        .executeUpdate();
+            session.createQuery("""
+                            DELETE FROM Location 
+                            WHERE id = :locationId 
+                            AND userId = :userId
+                            """)
+                    .setParameter("locationId", locationId)
+                    .setParameter("userId", userId)
+                    .executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
-            if (transaction != null){
+            if (transaction != null) {
                 transaction.rollback();
             }
-        } finally {
-            if (session != null) {
-                session.close();
-            }
+            throw new RuntimeException(e);
         }
     }
 
-    public List<Location> findAllByUserId(long userId){
-    List<Location>locations = null;
-    Session session = null;
-    Transaction transaction = null;
-
-        try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
-            locations = session.createQuery
-                    ("FROM Location WHERE userId = : userId",Location.class)
-                    .setParameter("userId",userId).getResultList();
-        } catch (HibernateException e) {
-            if (transaction != null){
-                transaction.rollback();
-            }
-        } finally {
-            if (session != null){
-                session.close();
-            }
+    public List<Location> findAllByUserId(long userId) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("FROM Location WHERE userId = :userId", Location.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
         }
-        return locations;
+
     }
 
 }

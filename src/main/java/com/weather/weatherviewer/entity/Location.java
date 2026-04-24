@@ -10,19 +10,19 @@ import java.text.DecimalFormat;
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id ;
+    private int id;
 
-    @Column(name = "name",nullable = false)
-    private String name ;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-@Column(name = "userid",nullable = false)
-    private long userId ;
+    @Column(name = "userid", nullable = false)
+    private long userId;
 
-@Column(name = "latitude")
-    private BigDecimal latitude ;
+    @Column(name = "latitude")
+    private BigDecimal latitude;
 
-@Column(name ="longitude")
-    private BigDecimal longitude ;
+    @Column(name = "longitude")
+    private BigDecimal longitude;
 
     public Location(String name, long userId, BigDecimal latitude, BigDecimal longitude) {
         this.name = name;
@@ -31,7 +31,7 @@ public class Location {
         this.longitude = longitude;
     }
 
-    public Location(){
+    public Location() {
 
     }
 

@@ -15,17 +15,13 @@ import java.util.UUID;
 @Repository
 public class UserSessionDao {
     private final SessionFactory sessionFactory;
-
     public UserSessionDao(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
-
-    public void save (UserSession userSession) {
-        Session session = null;
+    public void save(UserSession userSession) {
         Transaction transaction = null;
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.persist(userSession);
             transaction.commit();
@@ -33,31 +29,23 @@ public class UserSessionDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-        } finally {
-            if (session != null) {
-                session.close();
-            }
+            throw new RuntimeException(e);
         }
     }
 
-
-    public UserSession findBySessionId (UUID idSession){
-        Session session = sessionFactory.openSession();
-        UserSession userSession = session.get(UserSession.class,idSession);
-        session.close();
-        return userSession;
+    public UserSession findBySessionId(UUID sessionId) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(UserSession.class, sessionId);
+        }
     }
 
-
-    public void deleteBySessionId( UUID sessionId){
-        Session session = null;
+    public void deleteBySessionId(UUID sessionId) {
         Transaction transaction = null;
-
-        try {
-            session = sessionFactory.openSession();
-            transaction =session.beginTransaction();
-            UserSession userSession = session.get(UserSession.class , sessionId);
-            if (userSession == null){
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            UserSession userSession = session.get(UserSession.class, sessionId);
+            if (userSession == null) {
+                transaction.commit();
                 return;
             }
             session.remove(userSession);
@@ -66,18 +54,16 @@ public class UserSessionDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-        } finally {
-            session.close();
+            throw new RuntimeException(e);
         }
     }
-    public List<UserSession> findAllByUserId(long userId){
 
-        Session session = null;
-            session = sessionFactory.openSession();
-            List<UserSession>userSessions = session.createQuery("FROM UserSession where userId=:userId",UserSession.class).setParameter("userId",userId).list();
-            session.close();
-            return userSessions;
-
+    public List<UserSession> findAllByUserId(long userId) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("FROM UserSession where userId = :userId", UserSession.class)
+                    .setParameter("userId", userId)
+                    .list();
+        }
     }
 
 
