@@ -43,9 +43,13 @@ public class LocationDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-                session.createQuery("Delete FROM Location" +
-                        " WHERE id=:locationId " +
-                        "AND userId =:userId").setParameter("locationId",locationId).setParameter("userId",userId).executeUpdate();
+                session.createQuery("""
+                        DELETE FROM Location 
+                        WHERE id=:locationId 
+                        AND userId =:userId""")
+                        .setParameter("locationId",locationId)
+                        .setParameter("userId",userId)
+                        .executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null){
