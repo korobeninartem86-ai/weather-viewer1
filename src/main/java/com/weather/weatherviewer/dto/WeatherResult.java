@@ -1,13 +1,16 @@
 package com.weather.weatherviewer.dto;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 
+@Getter
 public class WeatherResult {
-    private BigDecimal temperature;
-    private BigDecimal feelsLike;
-    private Integer humidity;
-    private String description;
-    private String iconPatch;
+    private final BigDecimal temperature;
+    private final BigDecimal feelsLike;
+    private final Integer humidity;
+    private final String description;
+    private final String iconPatch;
 
 
     public WeatherResult(BigDecimal temperature, BigDecimal feelsLike, Integer humidity, String description, String iconPatch) {
@@ -18,23 +21,4 @@ public class WeatherResult {
         this.iconPatch = iconPatch;
     }
 
-    public BigDecimal getTemperature() {
-        return temperature;
-    }
-
-    public BigDecimal getFeelsLike() {
-        return feelsLike;
-    }
-
-    public Integer getHumidity() {
-        return humidity;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getIconPatch() {
-        return iconPatch;
-    }
 }

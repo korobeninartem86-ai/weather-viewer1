@@ -5,11 +5,9 @@ import com.weather.weatherviewer.dao.UserSessionDao;
 import com.weather.weatherviewer.entity.UserSession;
 import com.weather.weatherviewer.entity.Users;
 import com.weather.weatherviewer.exception.LoginException;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 import com.weather.weatherviewer.exception.RegisterException;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,20 +22,16 @@ public class UserService {
     }
 
     private boolean validateUsernameAndPassword(String username, String password) {
-        if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            return false;
-        }
-        return true;
+        return username != null && !username.isBlank() && password != null && !password.isBlank();
     }
 
-    public Users registerUser(String username, String password) {
+    public void registerUser(String username, String password) {
         Users user = userDao.findByUsername(username);
         if (user != null) {
             throw new RegisterException("username", "USERNAME_ALREADY_EXISTS", "Account with this username already exists");
         }
         user = new Users(username, password);
         userDao.save(user);
-        return user;
     }
 
     public UserSession loginUser(String username, String password) {
@@ -73,10 +67,7 @@ public class UserService {
 
     public boolean existsByUsername(String username) {
         Users user = userDao.findByUsername(username);
-        if (user != null) {
-            return true;
-        }
-        return false;
+        return user != null;
     }
 }
 

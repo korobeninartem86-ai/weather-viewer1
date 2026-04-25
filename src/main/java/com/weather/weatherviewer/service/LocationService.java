@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 public class LocationService {
-    private LocationDao locationDao;
+    private final LocationDao locationDao;
 
     public LocationService(LocationDao locationDao) {
         this.locationDao = locationDao;

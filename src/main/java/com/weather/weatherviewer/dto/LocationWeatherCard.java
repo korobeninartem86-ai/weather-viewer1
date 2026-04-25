@@ -3,8 +3,8 @@ package com.weather.weatherviewer.dto;
 import com.weather.weatherviewer.entity.Location;
 
 public class LocationWeatherCard {
-    private Location location;
-    private WeatherResult weatherResult;
+    private final Location location;
+    private final WeatherResult weatherResult;
 
     public LocationWeatherCard(Location location, WeatherResult weatherResult) {
         this.location = location;

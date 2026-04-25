@@ -22,8 +22,8 @@ import java.util.List;
 
 @Service
 public class WeatherService {
-    private HttpClient client;
-    private ObjectMapper objectMapper;
+    private final HttpClient client;
+    private final ObjectMapper objectMapper;
 
     public WeatherService() {
         this.client = HttpClient.newHttpClient();
