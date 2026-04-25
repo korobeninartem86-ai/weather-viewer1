@@ -1,5 +1,5 @@
-import com.weather.weatherviewer.dto.LocationSearchResult;
-import com.weather.weatherviewer.dto.WeatherResult;
+import com.weather.weatherviewer.dto.LocationSearchResultDto;
+import com.weather.weatherviewer.dto.WeatherResultDto;
 import com.weather.weatherviewer.service.WeatherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ public class WeatherServiceTest {
                 ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()
         )).thenReturn(response);
 
-        WeatherResult result = weatherService.getWeather(
+        WeatherResultDto result = weatherService.getWeather(
                 new BigDecimal("48.85"),
                 new BigDecimal("2.32")
         );
@@ -136,8 +136,8 @@ public class WeatherServiceTest {
                 any(HttpRequest.class),
                 ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()
         )).thenReturn(response);
-        List< LocationSearchResult> resultList = (List<LocationSearchResult>) weatherService.searchLocations("London");
-        LocationSearchResult result = resultList.get(0);
+        List<LocationSearchResultDto> resultList = (List<LocationSearchResultDto>) weatherService.searchLocations("London");
+        LocationSearchResultDto result = resultList.get(0);
         assertNotNull(result);
         assertEquals(0,result.getLat().compareTo(new BigDecimal("51.5072")));
         assertEquals(0,result.getLon().compareTo(new BigDecimal("-0.1276")));

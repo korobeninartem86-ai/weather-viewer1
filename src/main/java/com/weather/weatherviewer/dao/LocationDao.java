@@ -1,6 +1,7 @@
 package com.weather.weatherviewer.dao;
 
 import com.weather.weatherviewer.entity.Location;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -8,14 +9,10 @@ import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@RequiredArgsConstructor
 @Repository
 public class LocationDao {
     private final SessionFactory sessionFactory;
-
-    public LocationDao(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     public void save(Location location) {
         Transaction transaction = null;

@@ -1,19 +1,16 @@
 package com.weather.weatherviewer.dao;
 
 import com.weather.weatherviewer.entity.Users;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
-
+@RequiredArgsConstructor
 @Repository
 public class UserDao {
     private final SessionFactory sessionFactory;
-
-    public UserDao(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     public void save(Users user) {
         Transaction transaction = null;

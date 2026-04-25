@@ -1,10 +1,12 @@
 package com.weather.weatherviewer.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+@Getter
 @Entity
 @Table(name = "locations")
 public class Location {
@@ -35,23 +37,4 @@ public class Location {
 
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
 }

@@ -5,21 +5,18 @@ import com.weather.weatherviewer.dao.UserSessionDao;
 import com.weather.weatherviewer.entity.UserSession;
 import com.weather.weatherviewer.entity.Users;
 import com.weather.weatherviewer.exception.LoginException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.weather.weatherviewer.exception.RegisterException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserDao userDao;
     private final UserSessionDao userSessionDao;
 
-    public UserService(UserDao userDao, UserSessionDao userSessionDao) {
-        this.userDao = userDao;
-        this.userSessionDao = userSessionDao;
-    }
 
     private boolean validateUsernameAndPassword(String username, String password) {
         return username != null && !username.isBlank() && password != null && !password.isBlank();

@@ -2,13 +2,10 @@ package com.weather.weatherviewer.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.weather.weatherviewer.dto.LocationSearchResult;
-import com.weather.weatherviewer.dto.WeatherResult;
+import com.weather.weatherviewer.dto.LocationSearchResultDto;
+import com.weather.weatherviewer.dto.WeatherResultDto;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -36,9 +33,9 @@ public class WeatherService {
     }
 
     @SneakyThrows
-    public WeatherResult getWeather(BigDecimal lat, BigDecimal lon) {
+    public WeatherResultDto getWeather(BigDecimal latitude, BigDecimal longitude) {
         String base = "https://api.open-meteo.com/v1/forecast";
-        String url = base + "?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,,apparent_temperature,weather_code,relative_humidity_2m";
+        String url = base + "?latitude=" + latitude + "&longitude=" + longitude + "&current=temperature_2m,,apparent_temperature,weather_code,relative_humidity_2m";
         System.out.println("URL=" + url);
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).header("User-Agent", "Mozila/5.0").GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -59,12 +56,12 @@ public class WeatherService {
         int code = currentWeather.get("weather_code").intValue();
         String description = mapWeatherCode(code);
         String iconCode = mapWeatherIcon(code);
-        return new WeatherResult(temperature, feelsLike, humidity, description, iconCode);
+        return new WeatherResultDto(temperature, feelsLike, humidity, description, iconCode);
 
     }
 
     @SneakyThrows
-    public List<LocationSearchResult> searchLocations(String city) {
+    public List<LocationSearchResultDto> searchLocations(String city) {
         String base = "https://geocoding-api.open-meteo.com/v1/search";
         String name = URLEncoder.encode(city, StandardCharsets.UTF_8);
         String count = "5";
@@ -72,7 +69,7 @@ public class WeatherService {
         String url = base + "?name=" + name + "&count=" + count + "&language=" + language + "format=json";
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).header("User-Agent", "Mozila/5.0").GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        List<LocationSearchResult> locationSearchResults = new ArrayList<>();
+        List<LocationSearchResultDto> locationSearchResultDtos = new ArrayList<>();
         if (response.statusCode() != 200) {
             throw new RuntimeException("Open-meteo request failed");
         }
@@ -87,12 +84,12 @@ public class WeatherService {
             BigDecimal latitude = item.get("latitude").decimalValue();
             BigDecimal longitude = item.get("longitude").decimalValue();
             String country = item.get("country_code").asText();
-            LocationSearchResult locationSearchResult = new LocationSearchResult(nameLocation, latitude, longitude, country);
-            locationSearchResults.add(locationSearchResult);
+            LocationSearchResultDto locationSearchResultDto = new LocationSearchResultDto(nameLocation, latitude, longitude, country);
+            locationSearchResultDtos.add(locationSearchResultDto);
         }
 
 
-        return locationSearchResults;
+        return locationSearchResultDtos;
 
     }
 

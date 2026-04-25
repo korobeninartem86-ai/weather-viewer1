@@ -1,7 +1,7 @@
 package com.weather.weatherviewer.service;
 
-import com.weather.weatherviewer.dto.LocationWeatherCard;
-import com.weather.weatherviewer.dto.WeatherResult;
+import com.weather.weatherviewer.dto.LocationWeatherCardDto;
+import com.weather.weatherviewer.dto.WeatherResultDto;
 import com.weather.weatherviewer.entity.Location;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +18,19 @@ public class HomeService {
         this.weatherService = weatherService;
     }
 
-    public List<LocationWeatherCard> findAllCardsByUserId(Long userId) {
+    public List<LocationWeatherCardDto> findAllCardsByUserId(Long userId) {
         List<Location> locations = locationService.findAllByUserId(userId);
         if (locations.isEmpty()) {
             return List.of();
         }
-        List<LocationWeatherCard> cards = new ArrayList<>();
+        List<LocationWeatherCardDto> cards = new ArrayList<>();
         for (Location location : locations) {
-            WeatherResult weatherResult = weatherService.getWeather(location.getLatitude(), location.getLongitude());
-            if (weatherResult == null) {
+            WeatherResultDto weatherResultDto = weatherService.getWeather(location.getLatitude(), location.getLongitude());
+            if (weatherResultDto == null) {
                 continue;
             }
-            LocationWeatherCard locationWeatherCard = new LocationWeatherCard(location, weatherResult);
-            cards.add(locationWeatherCard);
+            LocationWeatherCardDto locationWeatherCardDto = new LocationWeatherCardDto(location, weatherResultDto);
+            cards.add(locationWeatherCardDto);
         }
         return cards;
     }

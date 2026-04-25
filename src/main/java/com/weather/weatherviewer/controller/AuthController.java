@@ -1,13 +1,9 @@
 package com.weather.weatherviewer.controller;
 
 
-import com.sun.net.httpserver.HttpServer;
-import com.weather.weatherviewer.dto.LocationWeatherCard;
+import com.weather.weatherviewer.dto.LocationWeatherCardDto;
 import com.weather.weatherviewer.dto.UserLoginDto;
 import com.weather.weatherviewer.dto.UserRegisterDto;
-import com.weather.weatherviewer.dto.WeatherResult;
-import com.weather.weatherviewer.entity.Location;
-import com.weather.weatherviewer.entity.UserSession;
 import com.weather.weatherviewer.entity.Users;
 import com.weather.weatherviewer.exception.LoginException;
 import com.weather.weatherviewer.exception.RegisterException;
@@ -18,8 +14,7 @@ import com.weather.weatherviewer.service.WeatherService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.coyote.Response;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,23 +23,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Controller
 public class AuthController {
     private final UserService userService;
     private final LocationService locationService;
     private final WeatherService weatherService;
     private final HomeService homeService;
-
-    public AuthController(UserService userService, LocationService locationService, WeatherService weatherService, HomeService homeService) {
-        this.userService = userService;
-        this.locationService = locationService;
-        this.weatherService = weatherService;
-        this.homeService = homeService;
-    }
 
     @GetMapping("/register")
     public String registerUserPage() {
@@ -106,7 +93,7 @@ public class AuthController {
         if (user == null) {
             return "redirect:/login";
         }
-        List<LocationWeatherCard> cards = homeService.findAllCardsByUserId(user.getId());
+        List<LocationWeatherCardDto> cards = homeService.findAllCardsByUserId(user.getId());
         model.addAttribute("user", user);
         model.addAttribute("cards", cards);
         return "home";

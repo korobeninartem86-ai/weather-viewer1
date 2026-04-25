@@ -1,6 +1,7 @@
 package com.weather.weatherviewer.dao;
 
 import com.weather.weatherviewer.entity.UserSession;
+import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -11,13 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Repository
 public class UserSessionDao {
     private final SessionFactory sessionFactory;
-    public UserSessionDao(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     public void save(UserSession userSession) {
         Transaction transaction = null;
