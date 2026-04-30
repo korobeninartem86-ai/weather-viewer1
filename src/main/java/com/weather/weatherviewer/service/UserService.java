@@ -2,14 +2,17 @@ package com.weather.weatherviewer.service;
 
 import com.weather.weatherviewer.dao.UserDao;
 import com.weather.weatherviewer.dao.UserSessionDao;
+import com.weather.weatherviewer.dto.UserLoginDto;
+import com.weather.weatherviewer.dto.UserRegisterDto;
 import com.weather.weatherviewer.entity.UserSession;
 import com.weather.weatherviewer.entity.Users;
-import com.weather.weatherviewer.exception.LoginException;
+import com.weather.weatherviewer.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.weather.weatherviewer.exception.RegisterException;
+import org.springframework.validation.BindingResult;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 @RequiredArgsConstructor
 @Service
@@ -17,55 +20,67 @@ public class UserService {
     private final UserDao userDao;
     private final UserSessionDao userSessionDao;
 
-
-    private boolean validateUsernameAndPassword(String username, String password) {
-        return username != null && !username.isBlank() && password != null && !password.isBlank();
-    }
-
-    public void registerUser(String username, String password) {
-        Users user = userDao.findByUsername(username);
-        if (user != null) {
-            throw new RegisterException("username", "USERNAME_ALREADY_EXISTS", "Account with this username already exists");
+    public boolean registerUser(UserRegisterDto registerDto , BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return false;
         }
-        user = new Users(username, password);
+        if (!registerDto.getPassword().equals(registerDto.getRepeatPassword())){
+            bindingResult.rejectValue("repeatPassword","PASSWORDS_DONT_MATCH","Password do not match");
+            return false;
+        }
+        Users user = userDao.findByUsername(registerDto.getUsername());
+        if (user != null) {
+            bindingResult.rejectValue("username", "USERNAME_ALREADY_EXISTS", "Account with this username already exists");
+            return false;
+        }
+        user = new Users(registerDto.getUsername(), registerDto.getPassword());
         userDao.save(user);
+        return true;
     }
 
-    public UserSession loginUser(String username, String password) {
-        Users user = userDao.findByUsername(username);
-        if (user == null || !user.getPassword().equals(password)) {
-            throw new LoginException("INVALID_CREDENTI_ALS", "Incorrect username or password");
+    public Optional<UUID> loginUser(UserLoginDto userLoginDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Optional.empty();
+        }
+        Users user = userDao.findByUsername(userLoginDto.getUsername());
+        if (user == null || !user.getPassword().equals(userLoginDto.getPassword())) {
+            bindingResult.rejectValue("username","INVALID_CREDENTI_ALS", "Incorrect username or password");
+            return Optional.empty();
         }
         LocalDateTime now = LocalDateTime.now();
         UserSession userSession = new UserSession(user.getId(), now.plusDays(2));
         userSessionDao.save(userSession);
-        return userSession;
+        return Optional.of(userSession.getSessionId());
     }
 
-    public Users findUserBySessionId(UUID sessionId) {
+    public Users getAuthorizedUser(UUID sessionId) {
         UserSession userSession = userSessionDao.findBySessionId(sessionId);
+        if (sessionId==null){
+            throw new UnauthorizedException("session is not valid");
+        }
         if (userSession == null) {
-            throw new RuntimeException("Session not found");
+            throw new UnauthorizedException("session is not valid");
         }
         LocalDateTime now = LocalDateTime.now();
+
         if (userSession.getExpiresAt().isBefore(now)) {
-            throw new RuntimeException("Session expired");
+            throw new UnauthorizedException("session is not valid");
         }
         Users user = userDao.findById(userSession.getUserId());
         if (user == null) {
-            throw new RuntimeException("User not found");
-        }
+            throw new UnauthorizedException("session is not valid");
+}
         return user;
     }
 
     public void logout(UUID sessionId) {
+        if (sessionId==null){
+            return;
+        }
         userSessionDao.deleteBySessionId(sessionId);
     }
 
-    public boolean existsByUsername(String username) {
-        Users user = userDao.findByUsername(username);
-        return user != null;
-    }
+
 }
 
 

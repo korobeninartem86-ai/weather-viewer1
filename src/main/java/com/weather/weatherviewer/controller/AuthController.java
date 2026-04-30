@@ -1,137 +1,91 @@
 package com.weather.weatherviewer.controller;
 
 
-import com.weather.weatherviewer.dto.LocationWeatherCardDto;
+import com.weather.weatherviewer.dto.HomePageDto;
 import com.weather.weatherviewer.dto.UserLoginDto;
 import com.weather.weatherviewer.dto.UserRegisterDto;
-import com.weather.weatherviewer.entity.Users;
-import com.weather.weatherviewer.exception.LoginException;
-import com.weather.weatherviewer.exception.RegisterException;
-import com.weather.weatherviewer.service.HomeService;
-import com.weather.weatherviewer.service.LocationService;
-import com.weather.weatherviewer.service.UserService;
-import com.weather.weatherviewer.service.WeatherService;
+import com.weather.weatherviewer.service.*;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 @RequiredArgsConstructor
 @Controller
 public class AuthController {
     private final UserService userService;
     private final LocationService locationService;
-    private final WeatherService weatherService;
     private final HomeService homeService;
+    public static final String SESSION_ID = "sessionId";
 
     @GetMapping("/register")
-    public String registerUserPage() {
+    public String registerUserPage(Model model) {
+        model.addAttribute("user",new UserRegisterDto());
         return "register";
     }
 
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") UserRegisterDto dto, BindingResult bindingResult, Model model) {
-        if (!bindingResult.getAllErrors().isEmpty()) {
-            return "register";
-        }
-        try {
-            userService.registerUser(dto.getUsername(), dto.getPassword());
-        } catch (RegisterException e) {
-            bindingResult.rejectValue(e.getField(), e.getCodeError(), e.getMessage());
-            return "register";
-        }
-        return "redirect:/login";
+    public String registerUser(@Valid @ModelAttribute("user") UserRegisterDto dto, BindingResult bindingResult) {
+ if (userService.registerUser(dto,bindingResult)){
+     return "redirect:/login";
+ }
+        return "register";
     }
 
 
     @PostMapping("/locations/delete")
-    public String locationDelete(@RequestParam("locationId") int id, HttpServletRequest request) {
-        Users user = getCurrentUser(request);
-        if (user == null) {
+    public String locationDelete(@RequestParam("locationId") int id, @CookieValue(name = SESSION_ID,required = false)UUID sessionId) {
+        if (sessionId==null){
             return "redirect:/login";
         }
-        locationService.deleteLocation(id, user.getId());
+        locationService.deleteLocation(id,sessionId);
         return "redirect:/home";
     }
 
     @GetMapping("/login")
-    public String showLoginPage() {
+    public String showLoginPage(Model model) {
+        model.addAttribute("user",new UserRegisterDto());
         return "login";
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, HttpServletResponse response) {
-        if (bindingResult.hasErrors()) {
+    public String login(@Valid @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, HttpServletResponse response) {
+        Optional<UUID> userSessionId = userService.loginUser(userLoginDto,bindingResult);
+        if (userSessionId.isEmpty()){
             return "login";
         }
-        UUID sessionId;
-        try {
-            sessionId = userService.loginUser(userLoginDto.getUsername(), userLoginDto.getPassword()).getSessionId();
-        } catch (LoginException e) {
-            bindingResult.reject(e.getCodeError(), e.getMessage());
-            return "login";
-        }
-        Cookie cookie = new Cookie("sessionId", sessionId.toString());
+        Cookie cookie = new Cookie(SESSION_ID, userSessionId.get().toString());
         cookie.setPath("/");
         response.addCookie(cookie);
         return "redirect:/home";
     }
 
     @GetMapping("/home")
-    public String homePage(HttpServletRequest request, Model model) {
-        Users user = getCurrentUser(request);
-        if (user == null) {
-            return "redirect:/login";
-        }
-        List<LocationWeatherCardDto> cards = homeService.findAllCardsByUserId(user.getId());
-        model.addAttribute("user", user);
-        model.addAttribute("cards", cards);
+    public String homePage(@CookieValue(name = SESSION_ID,required = false)UUID sessionId,Model model) {
+        HomePageDto homePageDto = homeService.getHomePage(sessionId);
+        model.addAttribute("user", homePageDto.getUser());
+        model.addAttribute("cards", homePageDto.getCards());
         return "home";
     }
 
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return "redirect:/login";
-        }
-        for (Cookie cookie : cookies) {
-            if ("sessionId".equals(cookie.getName())) {
-                UUID sessionId = UUID.fromString(cookie.getValue());
-                userService.logout(sessionId);
-                Cookie deleteCoolie = new Cookie("sessionId", null);
-                deleteCoolie.setMaxAge(0);
-                deleteCoolie.setPath("/");
-                response.addCookie(deleteCoolie);
-                return "redirect:/login";
-            }
-        }
+    public String logout(@CookieValue(name = SESSION_ID,required = false)UUID sessionId, HttpServletResponse response) {
+        userService.logout(sessionId);
+        Cookie deleteCoolie = new Cookie(SESSION_ID, null);
+        deleteCoolie.setMaxAge(0);
+        deleteCoolie.setPath("/");
+        response.addCookie(deleteCoolie);
         return "redirect:/login";
-    }
-
-    private Users getCurrentUser(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-        for (Cookie cookie : cookies) {
-            if ("sessionId".equals(cookie.getName())) {
-                UUID sessionId = UUID.fromString(cookie.getValue());
-                return userService.findUserBySessionId(sessionId);
             }
         }
-        return null;
-    }
-}
+
+
 

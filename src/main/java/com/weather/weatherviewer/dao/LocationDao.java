@@ -32,7 +32,7 @@ public class LocationDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.createQuery("""
+            session.createMutationQuery("""
                             DELETE FROM Location 
                             WHERE id = :locationId 
                             AND userId = :userId
@@ -56,6 +56,13 @@ public class LocationDao {
                     .getResultList();
         }
 
+    }
+    public  Location findLocationById(int locationId){
+        try(Session session = sessionFactory.openSession()){
+            return session.createQuery("FROM Location WHERE id = :locationId",Location.class)
+                    .setParameter("locationId",locationId)
+                    .uniqueResult();
+        }
     }
 
 }

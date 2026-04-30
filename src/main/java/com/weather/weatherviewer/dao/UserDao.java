@@ -7,6 +7,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
 @RequiredArgsConstructor
 @Repository
 public class UserDao {
@@ -28,9 +31,13 @@ public class UserDao {
 
     public Users findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from Users where username = :username", Users.class)
+             List<Users>users= session.createQuery("from Users where username = :username", Users.class)
                     .setParameter("username", username)
-                    .uniqueResult();
+                    .getResultList();
+             if (users.isEmpty()){
+                 return null;
+             }
+             return users.getFirst();
         }
     }
 
