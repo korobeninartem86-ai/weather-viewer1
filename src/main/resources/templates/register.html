@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Viewer – Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <div class="weather-logo"></div>
+        </div>
+    </div>
+
+    <h2 class="text-center mb-5">Sign Up</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-4 col-md-6 col-sm-12">
+
+            <form th:action="@{/register}" th:object="${user}" method="post" class="mt-4">
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('username')} ? ' is-invalid' : ''"
+                           id="username"
+                           th:field="*{username}">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('username')}"
+                         th:errors="*{username}">
+                        Username error
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('password')} ? ' is-invalid' : ''"
+                           id="password"
+                           th:field="*{password}">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}">
+                        Password error
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="repeat-password" class="form-label">Repeat password</label>
+                    <input type="password"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('repeatPassword')} ? ' is-invalid' : ''"
+                           id="repeat-password"
+                           th:field="*{repeatPassword}">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('repeatPassword')}"
+                         th:errors="*{repeatPassword}">
+                        Repeat password error
+                    </div>
+                </div>
+
+                <div class="alert alert-danger"
+                     th:if="${#fields.hasGlobalErrors()}"
+                     th:each="err : ${#fields.globalErrors()}"
+                     th:text="${err}">
+                    Global error
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">Sign Up</button>
+
+                <p class="mt-2 text-center">
+                    Already have an account? <a th:href="@{/login}">Sign in here</a>
+                </p>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
